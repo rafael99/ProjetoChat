@@ -17,7 +17,7 @@ public class Cliente {
         
         Scanner teclado = new Scanner(System.in);
         
-        Scanner usuario = new Scanner(cliente.getInputStream());
+//        Scanner usuario = new Scanner(cliente.getInputStream());
         PrintStream saida = new PrintStream(cliente.getOutputStream());
         Scanner entrada = new Scanner(cliente.getInputStream());
         
