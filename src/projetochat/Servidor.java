@@ -6,6 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Servidor {
@@ -16,7 +18,8 @@ public class Servidor {
     static Scanner entrada;
     static PrintStream saida;
 
-    static ArrayList<String> lista_usuarios = new ArrayList<String>();
+//    static ArrayList<String> lista_usuarios = new ArrayList<String>();
+    static final Map<String,Socket>lista_usuarios = new HashMap<String,Socket>();
 
     public static void main(String[] args) throws UnknownHostException, IOException {
         ServerSocket servidor = new ServerSocket(2424);
@@ -49,7 +52,7 @@ public class Servidor {
 
     public static synchronized void login(String usuario, Socket cliente) {
 
-        for (String user : lista_usuarios) {
+        for (String user : lista_usuarios.keySet()) {
             if (user.equalsIgnoreCase(usuario)) {
                 saida.println("login:false");
                 return;
@@ -57,31 +60,32 @@ public class Servidor {
         }
         saida.println("login:true");
         new Conexao(cliente);
-        atualizarListaUsuarios(usuario);
+        atualizarListaUsuarios(usuario, cliente);
     }
 
-    public static synchronized void atualizarListaUsuarios(String usuario) {
+    public static synchronized String atualizarListaUsuarios(String usuario, Socket cliente) {
         String usuarios = "lista_usuarios:";
-        lista_usuarios.add(usuario);
+        lista_usuarios.put(usuario, cliente);
 
-        for (String user : lista_usuarios) {
+        for (String user : lista_usuarios.keySet()) {
             usuarios += user + ";";
         }
-        saida.println(usuarios.substring(0, usuarios.length() - 1));
+        String lista = usuarios.substring(0, usuarios.length() - 1);
+        enviarMensagem(cliente, cliente, lista);
+        return lista;
     }
 
     // Envia a msg para thread responsável por transmitir
-    public void enviarMensagem(Socket remetente, Socket destinatario, String msg) {
+    public static void enviarMensagem(Socket remetente, Socket destinatario, String msg) {
         // Testar se o usuário destinatario existe
-        for (String user : lista_usuarios) {
+        for (String user : lista_usuarios.keySet()) {
             // Obs: não sei se o destinatario.toString() vai retornar o nome do usuário destinatário, isso é somente um exemplo!
             if (user.equalsIgnoreCase(destinatario.toString())) {
                 // Se sim:
                 Mensagem m = new Mensagem(remetente, destinatario, msg);
                 return;
             }
-        }
-        
+        }        
     }
 
 }

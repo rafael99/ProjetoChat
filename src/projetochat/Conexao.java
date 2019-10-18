@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import sun.util.logging.PlatformLogger;
@@ -14,6 +16,7 @@ public class Conexao extends Thread {
     Socket cliente;
     static Scanner entrada;
     static PrintStream saida;
+    
     
     Conexao(Socket conexao) {
         this.cliente = conexao;

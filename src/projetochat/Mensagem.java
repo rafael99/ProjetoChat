@@ -27,7 +27,7 @@ public class Mensagem extends Thread{
             PrintStream saida = new PrintStream(this.destinatario.getOutputStream());
             // Conseguir relacionar o nome do cliente com o Socket, para conseguir enviar a msg, ex:
             // remetente.toString() + ";" + destinatario.toString() + ";" + msg
-            saida.println();
+            saida.println(this.msg);
         } catch(IOException io) {
             System.out.println("msg erro: " + io.getMessage());
         }
