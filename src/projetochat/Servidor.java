@@ -69,4 +69,19 @@ public class Servidor {
         }
         saida.println(usuarios.substring(0, usuarios.length() - 1));
     }
+
+    // Envia a msg para thread responsável por transmitir
+    public void enviarMensagem(Socket remetente, Socket destinatario, String msg) {
+        // Testar se o usuário destinatario existe
+        for (String user : lista_usuarios) {
+            // Obs: não sei se o destinatario.toString() vai retornar o nome do usuário destinatário, isso é somente um exemplo!
+            if (user.equalsIgnoreCase(destinatario.toString())) {
+                // Se sim:
+                Mensagem m = new Mensagem(remetente, destinatario, msg);
+                return;
+            }
+        }
+        
+    }
+
 }

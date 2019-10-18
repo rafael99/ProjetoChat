@@ -43,8 +43,10 @@ public class Conexao extends Thread {
             String[] protocolo = msg.split(":");
             switch (protocolo[0]) {
                 case "mensagem":
-                    break;
-                case "transmitir":
+                    Servidor s = new Servidor();
+                    // No lugar do "cliente" do segundo parâmetro, devemos informar o destinatario, porém não sei como capturar ainda =)
+                    // protocolo[1] = msg de fato
+                    s.enviarMensagem(cliente, cliente, protocolo[1]);
                     break;
                 default:
                     saida.println("Protocolo não existe");
