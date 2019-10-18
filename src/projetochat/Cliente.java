@@ -22,6 +22,7 @@ public class Cliente {
         Scanner entrada = new Scanner(cliente.getInputStream());
         
         while(teclado.hasNextLine()) {
+            
             saida.println(teclado.nextLine());
             System.out.println(entrada.nextLine());
         }
