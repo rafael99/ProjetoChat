@@ -1,20 +1,16 @@
 package projetochat;
 
-import com.sun.istack.internal.logging.Logger;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.logging.Level;
-import sun.util.logging.PlatformLogger;
 
 public class Conexao extends Thread {
 
     Socket cliente;
     static Scanner entrada;
     static PrintStream saida;
-    
+
     Conexao(Socket conexao) {
         this.cliente = conexao;
         start();
@@ -24,37 +20,18 @@ public class Conexao extends Thread {
     public void run() {
         try {
             entrada = new Scanner(cliente.getInputStream());
-        } catch (IOException ex) {
-            /*Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);*/
-        }
-
-        try {
             saida = new PrintStream(cliente.getOutputStream());
         } catch (IOException ex) {
-            /*Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);*/
+            // Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         Scanner teclado = new Scanner(System.in);
 
         while (entrada.hasNextLine()) {
             String msg = entrada.nextLine();
-            saida.println("Você digitou: " + msg);
-            // Pegando a ação do usuario
-            String[] protocolo = msg.split(":");
-            switch (protocolo[0]) {
-                case "mensagem":
-                    break;
-                case "transmitir":
-                    break;
-                default:
-                    saida.println("Protocolo não existe");
-                    break;
-            }
-
-            System.out.println("O cliente digitou: " + msg);
             
-        }       
+            System.out.println("O cliente digitou: " + msg);
+        }
     }
 
-    
 }

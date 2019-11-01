@@ -7,26 +7,43 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 public class Cliente {
+
     String usuario;
     private String mensagem;
-    
+
     public static void main(String[] args) throws UnknownHostException, IOException {
         Socket cliente = new Socket("127.0.0.1", 2424);
-        
+
         System.out.println("O cliente se conectou ao servidor!");
-        
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Scanner entrada = new Scanner(cliente.getInputStream());
+                    while (true) {
+                        String mensagem = entrada.nextLine();
+                        if (mensagem == null || mensagem.isEmpty()) {
+                            continue;
+                        }
+
+                        System.out.println(mensagem);
+                    }
+
+                } catch (IOException e) {
+                    System.out.println("impossivel ler a mensagem do servidor");
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+
         Scanner teclado = new Scanner(System.in);
-        
-//        Scanner usuario = new Scanner(cliente.getInputStream());
-        PrintStream saida = new PrintStream(cliente.getOutputStream());
-        Scanner entrada = new Scanner(cliente.getInputStream());
-        
-        while(teclado.hasNextLine()) {
-            
+        PrintStream saida = new PrintStream(cliente.getOutputStream());        
+
+        while (teclado.hasNextLine()) {
             saida.println(teclado.nextLine());
-            System.out.println(entrada.nextLine());
         }
-        
+
         saida.close();
         teclado.close();
     }
