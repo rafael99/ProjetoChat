@@ -8,6 +8,8 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Servidor {
 
@@ -26,19 +28,21 @@ public class Servidor {
 
         while (true) {
             Socket cliente = servidor.accept();
-
+            
             try {
                 entrada = new Scanner(cliente.getInputStream());
                 saida = new PrintStream(cliente.getOutputStream());
             } catch (IOException ex) {
-                // Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
+                 Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             String msg = entrada.nextLine();
             String[] protocolo = msg.split(":");
-
+            System.out.println("Servidor: " + msg);
             if (protocolo[0].equalsIgnoreCase("login")) {
                 login(protocolo[1], cliente);
+            } else {
+                saida.println("Protocolo não existe!");
             }
         }
 
@@ -67,6 +71,10 @@ public class Servidor {
             usuarios += user + ";";
         }
         return usuarios.substring(0, usuarios.length() - 1);
+    }
+    
+    public static void sendToOne(String msg, Socket destinatario) {
+        
     }
     
     public static void sendToAll(String msg) throws IOException{

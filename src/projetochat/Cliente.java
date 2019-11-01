@@ -14,7 +14,7 @@ public class Cliente {
     public static void main(String[] args) throws UnknownHostException, IOException {
         Socket cliente = new Socket("127.0.0.1", 2424);
 
-        System.out.println("O cliente se conectou ao servidor!");
+        System.out.println("Servidor aguardando conexão...");
 
         new Thread() {
             @Override
