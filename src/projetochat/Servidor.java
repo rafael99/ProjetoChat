@@ -19,6 +19,7 @@ public class Servidor {
 
     static Map<String,Socket> lista_usuarios = new HashMap<String, Socket>();
 
+
     public static void main(String[] args) throws UnknownHostException, IOException {
         ServerSocket servidor = new ServerSocket(2424);
         System.out.println("Porta 2424 aberta! Aguardando conexão!");
@@ -74,4 +75,6 @@ public class Servidor {
             saida.println(msg);
         }
     }
+
+
 }
