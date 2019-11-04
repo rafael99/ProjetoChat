@@ -18,6 +18,7 @@ public class Servidor {
 
     static Scanner entrada;
     static PrintStream saida;
+    static Conexao cnx;
 
     static Map<String,Socket> lista_usuarios = new HashMap<String, Socket>();
 
@@ -41,11 +42,11 @@ public class Servidor {
             System.out.println("Servidor: " + msg);
             if (protocolo[0].equalsIgnoreCase("login")) {
                 login(protocolo[1], cliente);
+                mensagemConexao();
             } else {
                 saida.println("Protocolo não existe!");
             }
         }
-
     }
 
     public static synchronized void login(String usuario, Socket cliente) throws IOException {
@@ -57,8 +58,15 @@ public class Servidor {
             }
         }
         saida.println("login:true");
-        new Conexao(cliente);
+        cnx = new Conexao(cliente);
         sendToAll(atualizarListaUsuarios(usuario,cliente));
+    }
+    
+    public static void mensagemConexao(){
+        while(true){
+            String msg = cnx.entrada.nextLine();
+            System.out.println("Servidor: " + msg);
+        }
     }
 
     public static String atualizarListaUsuarios(String usuario, Socket endereco) {
@@ -66,8 +74,7 @@ public class Servidor {
         
         String usuarios = "lista_usuarios:";
 
-        for (String user : lista_usuarios.keySet()) {
-            
+        for (String user : lista_usuarios.keySet()) {            
             usuarios += user + ";";
         }
         return usuarios.substring(0, usuarios.length() - 1);

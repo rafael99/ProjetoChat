@@ -8,8 +8,8 @@ import java.util.Scanner;
 public class Conexao extends Thread {
 
     Socket cliente;
-    static Scanner entrada;
-    static PrintStream saida;
+    Scanner entrada;
+    PrintStream saida;
 
     Conexao(Socket conexao) {
         this.cliente = conexao;
@@ -30,7 +30,7 @@ public class Conexao extends Thread {
         while (entrada.hasNextLine()) {
             String msg = entrada.nextLine();
             
-            System.out.println("O cliente digitou: " + msg);
+//            System.out.println("O cliente digitou: " + msg);
         }
     }
 
