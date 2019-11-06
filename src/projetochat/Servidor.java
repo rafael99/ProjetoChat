@@ -35,7 +35,7 @@ public class Servidor {
             } catch (IOException ex) {
                 Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
             }
-
+            
             String msg = entrada.nextLine();
             String[] protocolo = msg.split(":");
             System.out.println("Servidor: " + msg);
@@ -44,20 +44,22 @@ public class Servidor {
             } else {
                 saida.println("Protocolo não existe!");
             }
+            
         }
     }
 
-    public static synchronized void login(String usuario, Socket cliente) throws IOException {
+    public static synchronized boolean login(String usuario, Socket cliente) throws IOException {
 
         for (String user : lista_usuarios.keySet()) {
             if (user.equalsIgnoreCase(usuario)) {
                 saida.println("login:false");
-                return;
+                return false;
             }
         }
         saida.println("login:true");
         new Conexao(cliente);
         sendToAll(atualizarListaUsuarios(usuario, cliente));
+        return true;
     }
 
 //    public static Thread conexao(Socket cliente) {
@@ -102,6 +104,8 @@ public class Servidor {
                 if (protocolo[1].contains(";")) {
                     System.out.println("SEND TO MANY");
 
+                } else if(protocolo[1].equalsIgnoreCase("*")) {
+                    sendToAll("transmitir:*:"+protocolo[2]);
                 } else {
                     if (lista_usuarios.get(protocolo[1]) != null) {
                         sendToOne(cliente, lista_usuarios.get(protocolo[1]), protocolo[2]);
@@ -124,6 +128,12 @@ public class Servidor {
             });
 
         });
+    }
+    
+    public static void sendToMany(String clientes, String msg){
+        String[] remententes = clientes.split(";");
+        
+        
     }
 
     public static void sendToAll(String msg) throws IOException {
