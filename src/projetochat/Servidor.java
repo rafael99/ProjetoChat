@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -18,7 +19,6 @@ public class Servidor {
 
     static Scanner entrada;
     static PrintStream saida;
-    static Conexao cnx;
 
     static Map<String, Socket> lista_usuarios = new HashMap<String, Socket>();
 
@@ -57,31 +57,9 @@ public class Servidor {
         }
         saida.println("login:true");
         new Conexao(cliente);
-        sendToAll(atualizarListaUsuarios(usuario, cliente));
+        sendToAll(atualizarListaUsuarios(usuario, cliente), true);
     }
 
-//    public static Thread conexao(Socket cliente) {
-//        return new Thread() {
-//            @Override
-//            public void run() {
-//
-//                try {
-//                    entrada = new Scanner(cliente.getInputStream());
-//                    saida = new PrintStream(cliente.getOutputStream());
-//                } catch (IOException ex) {
-//                    // Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//
-//                Scanner teclado = new Scanner(System.in);
-//
-//                while (entrada.hasNextLine()) {
-//                    String msg = entrada.nextLine();
-//
-//                    System.out.println("O cliente digitou: " + msg);
-//                }
-//            }
-//        };
-//    }
     public static String atualizarListaUsuarios(String usuario, Socket endereco) {
         lista_usuarios.put(usuario, endereco);
 
@@ -94,42 +72,87 @@ public class Servidor {
     }
 
     public void recebeMensagem(Socket cliente, String mensa) throws IOException {
+        lista_usuarios.keySet().stream().filter((remet) -> (lista_usuarios.get(remet) == cliente)).forEachOrdered((remet) -> {
+            remetente = remet; // Remetente é a variável global lá em cima!
+        });
+
         if (mensa.equalsIgnoreCase("sair")) {
-            cliente.close();
+//            saida = new PrintStream(cliente.getOutputStream());
+//            saida.println("Desconectado!!!");
+//            lista_usuarios.remove(lista_usuarios.get(cliente));
+//
+//            String usuarios = "lista_usuarios:";
+//
+//            for (String user : lista_usuarios.keySet()) {
+//                usuarios += user + ";";
+//            }
+//            
+//            usuarios.substring(0, usuarios.length() - 1);
+//            
+//            sendToAll(usuarios, true);
+//
+//
+//            cliente.close();
         } else {
             String[] protocolo = mensa.split(":");
             if (protocolo[0].equalsIgnoreCase("mensagem")) {
                 if (protocolo[1].contains(";")) {
-                    System.out.println("SEND TO MANY");
-
+                    String[] destinos = protocolo[1].split(";");
+                    sendToMany(destinos, protocolo[1], protocolo[2]);
+                } else if (protocolo[1].equals("*")) {
+                    sendToAll(protocolo[2], false);
                 } else {
                     if (lista_usuarios.get(protocolo[1]) != null) {
                         sendToOne(cliente, lista_usuarios.get(protocolo[1]), protocolo[2]);
                     } else {
-                        saida.println("Destinatário não existe!");
+                        saida = new PrintStream(cliente.getOutputStream());
+                        saida.println("Destinatário não está conectado!");
                     }
                 }
             }
         }
     }
 
-    public static void sendToOne(Socket remetente, Socket destinatario, String msg) throws IOException {
-        saida = new PrintStream(destinatario.getOutputStream());
-        lista_usuarios.keySet().stream().filter((remet) -> (lista_usuarios.get(remet) == remetente)).forEachOrdered((remet) -> {
-            String r = remet;
+    public static void sendToOne(Socket remetent, Socket destino, String msg) throws IOException {
+        saida = new PrintStream(destino.getOutputStream());
 
-            lista_usuarios.keySet().stream().filter((dest) -> (lista_usuarios.get(dest) == destinatario)).forEachOrdered((dest) -> {
+        lista_usuarios.keySet().stream().filter((dest) -> (lista_usuarios.get(dest) == destino)).forEachOrdered((dest) -> {
 
-                saida.println("transmitir:" + r + ":" + dest + ":" + msg);
-            });
+            destinatario = dest;
 
+            saida.println("transmitir:" + remetente + ":" + destinatario + ":" + msg);
         });
+
     }
 
-    public static void sendToAll(String msg) throws IOException {
+    public static void sendToAll(String msg, Boolean servidor) throws IOException {
         for (Socket user : lista_usuarios.values()) {
             saida = new PrintStream(user.getOutputStream());
-            saida.println(msg);
+            if (servidor) {
+                saida.println(msg);
+            } else {
+                saida.println("transmitir:" + remetente + ":*:" + msg);
+            }
+
+        }
+    }
+
+    public static void sendToMany(String destinos[], String destinosMsg, String msg) {
+        for (String destino : destinos) {
+            Socket desti = lista_usuarios.get(destino);
+            if (desti != null) {
+                lista_usuarios.keySet().stream().filter((dest) -> (lista_usuarios.get(dest) == desti)).forEachOrdered((dest) -> {
+
+                    destinatario = destinosMsg;
+
+                    try {
+                        saida = new PrintStream(desti.getOutputStream());
+                    } catch (IOException ex) {
+                        Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    saida.println("transmitir:" + remetente + ":" + destinatario + ":" + msg);
+                });
+            }
         }
     }
 
