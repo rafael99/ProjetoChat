@@ -14,7 +14,7 @@ public class Cliente {
     public static void main(String[] args) throws UnknownHostException, IOException {
         Socket cliente = new Socket("127.0.0.1", 2424);
 
-        System.out.println("Servidor aguardando conexão...");
+        System.out.println("Realize login...");
 
         new Thread() {
             @Override
@@ -22,12 +22,14 @@ public class Cliente {
                 try {
                     Scanner entrada = new Scanner(cliente.getInputStream());
                     while (true) {
-                        String mensagem = entrada.nextLine();
-                        if (mensagem == null || mensagem.isEmpty()) {
-                            continue;
-                        }
-
-                        System.out.println(mensagem);
+                        while(entrada.hasNextLine()) {
+                            String mensagem = entrada.nextLine();
+                            if (mensagem == null || mensagem.isEmpty()) {
+                                continue;
+                            }
+                            
+                            System.out.println(mensagem);
+                        }                        
                     }
 
                 } catch (IOException e) {
@@ -38,9 +40,9 @@ public class Cliente {
         }.start();
 
         Scanner teclado = new Scanner(System.in);
-        PrintStream saida = new PrintStream(cliente.getOutputStream());        
+        PrintStream saida = new PrintStream(cliente.getOutputStream());
 
-        while (teclado.hasNextLine()) {
+        while (teclado.hasNextLine()) {            
             saida.println(teclado.nextLine());
         }
 

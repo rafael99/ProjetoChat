@@ -25,7 +25,7 @@ public class Conexao extends Thread {
             entrada = new Scanner(cliente.getInputStream());
             saida = new PrintStream(cliente.getOutputStream());
         } catch (IOException ex) {
-            // Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
+             Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         Scanner teclado = new Scanner(System.in);
@@ -34,11 +34,13 @@ public class Conexao extends Thread {
             try {
                 String msg = entrada.nextLine();
                 s.recebeMensagem(cliente, msg);
-//            System.out.println("O cliente digitou: " + msg);
+                
+//                System.out.println("O cliente digitou: " + msg);
             } catch (IOException ex) {
                 Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
+   
 
 }
