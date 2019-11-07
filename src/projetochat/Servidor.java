@@ -41,10 +41,9 @@ public class Servidor {
             while (flag) {
                 String msg = entrada.nextLine();
                 String[] protocolo = msg.split(":");
-                System.out.println("Servidor: " + msg);
+                // System.out.println("Servidor: " + msg);
                 if (protocolo[0].equalsIgnoreCase("login")) {
-                    login(protocolo[1], cliente);
-                    flag = false;
+                    flag = ! login(protocolo[1], cliente);
                 } else {
                     saida.println("Protocolo não existe!");
                 }
@@ -52,22 +51,24 @@ public class Servidor {
         }
     }
 
-    public static synchronized void login(String usuario, Socket cliente) throws IOException {
+    public static synchronized boolean login(String usuario, Socket cliente) throws IOException {
 
         for (String user : lista_usuarios.keySet()) {
             if (user.equalsIgnoreCase(usuario)) {
                 saida.println("login:false");
+                return false;
             }
         }
         saida.println("login:true");
         new Conexao(cliente);
         atualizarListaUsuarios(usuario, cliente, false);
+        return true;
     }
 
     public static void atualizarListaUsuarios(String usuario, Socket endereco, boolean remover) throws IOException {
         if (remover) {
             lista_usuarios.remove(usuario);
-            System.out.println(lista_usuarios);
+            // System.out.println(lista_usuarios);
         } else {
             lista_usuarios.put(usuario, endereco);
         }
