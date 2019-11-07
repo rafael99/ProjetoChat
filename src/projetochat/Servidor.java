@@ -36,37 +36,39 @@ public class Servidor {
                 Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            String msg = entrada.nextLine();
-            String[] protocolo = msg.split(":");
-            System.out.println("Servidor: " + msg);
-            if (protocolo[0].equalsIgnoreCase("login")) {
-                login(protocolo[1], cliente);
-            } else {
-                saida.println("Protocolo não existe!");
+            boolean flag = entrada.hasNextLine();
+
+            while (flag) {
+                String msg = entrada.nextLine();
+                String[] protocolo = msg.split(":");
+                System.out.println("Servidor: " + msg);
+                if (protocolo[0].equalsIgnoreCase("login")) {
+                    login(protocolo[1], cliente);
+                    flag = false;
+                } else {
+                    saida.println("Protocolo não existe!");
+                }
             }
-            
         }
     }
 
-    public static synchronized boolean login(String usuario, Socket cliente) throws IOException {
+    public static synchronized void login(String usuario, Socket cliente) throws IOException {
 
         for (String user : lista_usuarios.keySet()) {
             if (user.equalsIgnoreCase(usuario)) {
                 saida.println("login:false");
-                return false;
             }
         }
         saida.println("login:true");
         new Conexao(cliente);
         atualizarListaUsuarios(usuario, cliente, false);
-        return true;
     }
 
     public static void atualizarListaUsuarios(String usuario, Socket endereco, boolean remover) throws IOException {
         if (remover) {
             lista_usuarios.remove(usuario);
             System.out.println(lista_usuarios);
-        } else{
+        } else {
             lista_usuarios.put(usuario, endereco);
         }
         String usuarios = "lista_usuarios:";
@@ -74,7 +76,7 @@ public class Servidor {
         for (String user : lista_usuarios.keySet()) {
             usuarios += user + ";";
         }
-        
+
         sendToAll(usuarios.substring(0, usuarios.length() - 1), true);
     }
 
@@ -84,7 +86,7 @@ public class Servidor {
         });
 
         if (mensa.equalsIgnoreCase("sair")) {
-            sendToOne(cliente, cliente,"Desconectado");
+            sendToOne(cliente, cliente, "Desconectado");
             atualizarListaUsuarios(remetente, cliente, true);
             cliente.close();
         } else {
@@ -113,8 +115,8 @@ public class Servidor {
         lista_usuarios.keySet().stream().filter((dest) -> (lista_usuarios.get(dest) == destino)).forEachOrdered((dest) -> {
 
             destinatario = dest;
-            
-            if(msg.equalsIgnoreCase("desconectado")){
+
+            if (msg.equalsIgnoreCase("desconectado")) {
                 saida.println(msg);
                 return;
             }
@@ -122,12 +124,6 @@ public class Servidor {
             saida.println("transmitir:" + remetente + ":" + destinatario + ":" + msg);
         });
 
-    }
-    
-    public static void sendToMany(String clientes, String msg){
-        String[] remententes = clientes.split(";");
-        
-        
     }
 
     public static void sendToAll(String msg, Boolean servidor) throws IOException {
